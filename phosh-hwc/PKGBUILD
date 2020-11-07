@@ -1,0 +1,49 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+pkgname=phosh-hwc
+_pkgname=phosh
+pkgver=0.4.5
+pkgrel=1
+pkgdesc="The Librem5 Shell"
+arch=('x86_64' 'armv7h' 'aarch64')
+url="https://source.puri.sm/Librem5/phosh"
+license=('GPL')
+provides=('phosh')
+conflicts=('phosh')
+depends=('gtk3' 'libhandy' 'gnome-desktop' 'gnome-session' 'upower' 'libpulse'
+         'gcr' 'feedbackd' 'libnm' 'phoc-hwc')
+makedepends=('meson' 'ninja')
+_commit_phosh=da54b8bcd05c8fc8c035997c05dd69861ae664ec
+_commit_gvc="ae1a34aafce7026b8c0f65a43c9192d756fe1057"
+source=("https://github.com/hybris-mobian/phosh/archive/${_commit_phosh}.tar.gz"
+	"https://gitlab.gnome.org/GNOME/libgnome-volume-control/-/archive/$_commit_gvc/libgnome-volume-control-$_commit_gvc.tar.gz"
+	'pam_phosh'
+	'sm.puri.OSK0.desktop'
+	'phosh.service')
+
+prepare() {
+	cd ${_pkgname}-${_commit_phosh}
+	rm -r subprojects/gvc
+	mv "$srcdir/libgnome-volume-control-$_commit_gvc" subprojects/gvc
+}
+
+build() {
+	arch-meson ${_pkgname}-${_commit_phosh} output
+	ninja -C output
+}
+
+package() {
+	DESTDIR="$pkgdir" ninja -C output install
+
+	install -Dm644 "$srcdir"/phosh.service \
+		"$pkgdir"/usr/lib/systemd/system/phosh.service
+	install -Dm644 "$srcdir"/pam_phosh \
+		"$pkgdir"/etc/pam.d/phosh
+	install -Dm644 "$srcdir"/sm.puri.OSK0.desktop \
+		"$pkgdir"/usr/share/applications/sm.puri.OSK0.desktop
+}
+
+md5sums=('0e548cab5feb75b979289e794f4d0697'
+         'c08f04485db11997525c139346faecc8'
+         '6d5a0d561f8362bf91f85c236a88395d'
+         '30c7febb5cbbac40984fb50d66a88639'
+         'efeeab2f55315f576c88e45c494edc7c')
