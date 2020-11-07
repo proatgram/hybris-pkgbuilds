@@ -1,0 +1,35 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+
+pkgname=bluebinder
+pkgver=1.0.12
+pkgrel=1
+pkgdesc="GLib-style interface to binder"
+arch=(armv7h aarch64)
+url="https://github.com/mer-hybris/bluebinder.git"
+license=('BSD')
+depends=('bluez-libs' 'libgbinder' 'systemd')
+makedepends=('git')
+_commit="419ab4a36fd61f841e7b1070b92b5e23ea813b63" # tags/1.0.12
+source=(${pkgname}::git+https://github.com/mer-hybris/bluebinder.git#commit=${_commit}
+        archpaths.patch)
+sha512sums=('SKIP'
+            'ffb0c7e2e236248e36ecd4b3e7020157103d28b7fa612046c2f09c8ea764d5709b9a25258f6e726550709a57eb6dfe07c6a2946681e39cb538244524e928705a')
+
+prepare() {
+    cd ${pkgname}
+    patch -p1 -N < ../archpaths.patch
+}
+
+build() {
+    cd ${pkgname}
+    make
+}
+
+package() {
+    cd ${pkgname}
+    make DESTDIR="${pkgdir}" install
+
+    install -Dm644 bluebinder.service "${pkgdir}/usr/lib/systemd/system/bluebinder.service"
+    install -Dm755 bluebinder_wait.sh "${pkgdir}/usr/bin/droid/bluebinder_wait.sh"
+    install -Dm755 bluebinder_post.sh "${pkgdir}/usr/bin/droid/bluebinder_post.sh"
+}
