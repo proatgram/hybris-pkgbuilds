@@ -1,0 +1,54 @@
+# Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
+
+pkgname=gnome-settings-daemon-hybris
+_pkgname=gnome-settings-daemon
+pkgver=3.38.1
+pkgrel=1
+pkgdesc="GNOME Settings Daemon - With Mobian Hybris patches"
+url="https://gitlab.gnome.org/GNOME/gnome-settings-daemon"
+arch=(x86_64 armv7h aarch64)
+license=(GPL)
+depends=(dconf gnome-desktop gsettings-desktop-schemas libcanberra-pulse libnotify systemd-libs
+         libwacom pulseaudio pulseaudio-alsa upower librsvg libgweather geocode-glib geoclue nss
+         libgudev gtk3 libnm gcr)
+makedepends=(xf86-input-wacom libxslt docbook-xsl python git meson usbguard)
+checkdepends=(python-gobject python-dbusmock)
+optdepends=('usbguard: USB protection support')
+groups=(gnome)
+provides=("${_pkgname}")
+conflicts=("${_pkgname}")
+backup=(etc/xdg/Xwayland-session.d/00-xrdb)
+_commit=4607668092130370e2e71ba502d7bcebc9152e1c  # tags/GNOME_SETTINGS_DAEMON_3_38_1^0
+source=("git+https://gitlab.gnome.org/GNOME/gnome-settings-daemon.git#commit=$_commit"
+        "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
+        https://github.com/hybris-mobian/gnome-settings-daemon/commit/cf60fcb561cd4a1a7a3f07e7ad70feb8514c761a.patch
+        https://github.com/hybris-mobian/gnome-settings-daemon/commit/3cb672818715e93f8a275b9bea7786814626e5c5.patch)
+sha256sums=('SKIP'
+            'SKIP'
+            'e46cb508601b0bf37f6a88b245b9263c00627648718cf7eaffd53c361657a87e'
+            'd4e926a562f424545b37231b3dde893421b12e5b716d79d856f1432559cafa43')
+
+pkgver() {
+  cd $_pkgname
+  git describe --tags | sed 's/^GNOME_SETTINGS_DAEMON_//;s/_/./g;s/-/+/g'
+}
+
+prepare() {
+  cd $_pkgname
+
+  git submodule init
+  git submodule set-url subprojects/gvc "$srcdir/libgnome-volume-control"
+  git submodule update
+
+  patch -p1 -N < ../cf60fcb561cd4a1a7a3f07e7ad70feb8514c761a.patch
+  patch -p1 -N < ../3cb672818715e93f8a275b9bea7786814626e5c5.patch
+}
+
+build() {
+  arch-meson $_pkgname build
+  meson compile -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+}
