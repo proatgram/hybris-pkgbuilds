@@ -1,0 +1,55 @@
+# Maintainer: Brett Cornwall <ainola@archlinux.org>
+# Contributor: Omar Pakker
+
+pkgname=wlroots-hwc
+pkgver=0.11.0
+pkgrel=2
+license=('MIT')
+pkgdesc='Modular Wayland compositor library - with hwcomposer backend'
+url='https://github.com/swaywm/wlroots'
+arch=('armv7h' 'aarch64')
+depends=(
+    'libinput'
+    'libxkbcommon'
+    'opengl-driver'
+    'pixman'
+    'xcb-util-errors'
+    'xcb-util-image'
+    'xcb-util-wm'
+    'libhybris'
+)
+makedepends=(
+    'meson'
+    'ninja'
+    'wayland-protocols'
+    'android-headers-9.0'
+)
+provides=(
+    'libwlroots.so'
+    'wlroots'
+)
+_commit="7bb4fc17bf3b24b3bfb3dd2c7af25a94c91b691a"
+source=(
+    "wlroots-$_commit.tar.gz::https://github.com/hybris-mobian/wlroots/archive/${_commit}.zip"
+)
+sha256sums=('c0ff1be4ba1c676a315e880f4b2725788a39782b09b033f8d2835a64a3c47165')
+
+build() {
+    meson "wlroots-$_commit" build \
+        --prefix=/usr \
+        --buildtype=plain \
+        -Dlibcap=enabled \
+        -Dlogind=enabled \
+        -Dlogind-provider=systemd \
+        -Dxcb-errors=enabled \
+        -Dxcb-icccm=enabled \
+        -Dxcb-xkb=enabled \
+        -Dxwayland=enabled \
+        -Dx11-backend=enabled
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+    install -Dm644 "wlroots-$_commit/LICENSE" -t "$pkgdir/usr/share/licenses/$pkgname/"
+}
