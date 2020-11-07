@@ -1,0 +1,35 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+
+pkgname=hybris-usb
+pkgver=19.dc0faaf
+pkgrel=1
+pkgdesc="USB control for Android with hybris"
+arch=('any')
+url="https://github.com/hybris-mobian/hybris-usb"
+license=('WTFPL')
+depends=('dhcp' 'net-tools')
+makedepends=('git')
+source=(${pkgname}::git+https://github.com/hybris-mobian/hybris-usb.git#branch=bullseye)
+sha512sums=('SKIP')
+
+pkgver() {
+  cd "${srcdir}/${pkgname}"
+  echo $(git rev-list --count HEAD).$(git rev-parse --short HEAD)
+}
+
+package() {
+    cd ${pkgname}
+
+    install -d ${pkgdir}/usr/bin
+    install -m 755 usb-tethering ${pkgdir}/usr/bin/
+
+    install -d ${pkgdir}/usr/lib/systemd/system/
+    install -m 644 usb-tethering.service ${pkgdir}/usr/lib/systemd/system/
+
+    # dhcpd configuration
+    install -d ${pkgdir}/usr/lib/tmpfiles.d/
+    install -m 644 tmpfiles.d.hybris-usb.conf ${pkgdir}/usr/lib/tmpfiles.d/hybris-usb.conf
+
+    install -d ${pkgdir}/etc/hybris-usb/
+    install -m 644 dhcpd.conf ${pkgdir}/etc/hybris-usb/
+}
