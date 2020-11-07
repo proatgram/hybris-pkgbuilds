@@ -1,0 +1,24 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+
+pkgname=libgrilio
+pkgver=1.0.40
+pkgrel=1
+pkgdesc="RIL I/O library"
+arch=(armv7h aarch64)
+url="https://git.sailfishos.org/mer-core/libgrilio"
+license=('BSD')
+depends=('libglibutil' 'glib2')
+makedepends=('git')
+_commit="52a34cf393e47eea56df053ec131c8596f56fcbd" # tags/1.0.40
+source=(${pkgname}::git+https://git.sailfishos.org/mer-core/libgrilio.git#commit=${_commit})
+sha512sums=('SKIP')
+
+build() {
+    cd ${pkgname}
+    make -j1 KEEP_SYMBOLS=1 release pkgconfig
+}
+
+package() {
+    cd ${pkgname}
+    make install-dev DESTDIR="${pkgdir}"
+}
