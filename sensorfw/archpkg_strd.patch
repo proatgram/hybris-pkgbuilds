@@ -1,0 +1,44 @@
+diff --git a/sensord/sensord.pro b/sensord/sensord.pro
+index 3fd453d..4ffcc7f 100644
+--- a/sensord/sensord.pro
++++ b/sensord/sensord.pro
+@@ -38,7 +38,7 @@ contextprovider {
+ }
+ 
+ TARGET_H.files = $$HEADERS
+-target.path = /usr/sbin/
++target.path = /usr/bin/
+ 
+ INSTALLS += target \
+             TARGET_H
+diff --git a/sensorfw.pro b/sensorfw.pro
+index c6eba33..7203ca0 100644
+--- a/sensorfw.pro
++++ b/sensorfw.pro
+@@ -77,7 +77,7 @@ contains(CONFIG,hybris) {
+ 
+     PKGCONFIGFILES.files = sensord-qt5.pc
+     PKGCONFIGFILES.commands = 'sed -i "s/Version:.*/Version: $$PC_VERSION/" $$_PRO_FILE_PWD_/sensord-qt5.pc'
+-    QTCONFIGFILES.path = /usr/share/qt5/mkspecs/features
++    QTCONFIGFILES.path = /usr/lib/qt/mkspecs/features
+ }
+ 
+ 
+@@ -89,7 +89,7 @@ contains(CONFIG,hybris) {
+ !contains(CONFIG,hybris) {
+ # config file installation not handled here
+     DBUSCONFIGFILES.files = sensorfw.conf
+-    DBUSCONFIGFILES.path = /etc/dbus-1/system.d
++    DBUSCONFIGFILES.path = /usr/share/dbus-1/system.d
+     INSTALLS += DBUSCONFIGFILES
+ 
+     SENSORDCONFIGFILES.files  = config/10-sensord-default.conf
+@@ -98,7 +98,7 @@ contains(CONFIG,hybris) {
+     INSTALLS += SENSORDCONFIGFILES
+ 
+     SENSORSYSTEMD.files = rpm/sensorfwd.service
+-    SENSORSYSTEMD.path = /lib/systemd/system
++    SENSORSYSTEMD.path = /usr/lib/systemd/system
+     INSTALLS += SENSORSYSTEMD
+ }
+ 

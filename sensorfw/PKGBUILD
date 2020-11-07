@@ -1,0 +1,52 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+
+pkgname=sensorfw
+pkgver=0.12.1
+pkgrel=1
+pkgdesc="Sensor Framework provides an interface to hardware sensor drivers through logical sensors."
+arch=(armv7h aarch64)
+url="https://git.sailfishos.org/mer-core/sensorfw"
+license=('LGPL2.1')
+depends=('qt5-base' 'libhybris' 'libgbinder')
+makedepends=('git' 'doxygen' 'android-headers-9.0')
+_commit="405f07839517750a32b6bbdd06fd7c08caf1a0f5" # tags/0.12.1
+source=(${pkgname}::git+https://git.sailfishos.org/mer-core/sensorfw.git#commit=${_commit}
+        0001-Should-be-pkgconfig-libudev-not-udev.patch
+        0002-core-Add-android-headers-include-path.patch
+        0003-debian-compile-hybris-backend-with-binder-support-fo.patch
+        0004-Fix-gbinder-includes-to-make-it-compile.patch
+        archpkg_strd.patch)
+sha512sums=('SKIP'
+            'febbcb38caa2a9c469bf09975110c0b734f0cd33fb75051262c198589166898d9b25cf695bbfff02f03c5a39201c8df8790848a7761e93c696db3bdb2a082f42'
+            'e9cd250d09fd1cdaa61e070240834c2aebba8691313f188839eaa832779da760e2a8a1ed683e9f0746b0a4a11c6a12aadaeda346c14c6262144338bf1f11a79e'
+            '92be59c5a232cf2461dc66baa37d5e93380ffaa7243b6ee05e34ab98cf1bddcbb97b5510bce3d80dc38192ab2b015301302412abced6dbb25d972631eb163f58'
+            '6c6be33eb3dc8bbdbab924aee75a699f51c6069d30cd0cb9a669c085b65282f86c68cb5f24af372f1c90b23cce7ab82baca9a2dc56de215627cccf5524c624c5'
+            'afad37617b3ab2d81145b57f8c6bd7ed8341430d46a0139c9326df9b0fa6ccc784005c25a5dbc0646edebd48b68f97ca9261ff48ca5885ea84bc800864624388')
+
+prepare() {
+    cd ${pkgname}
+    patch -p1 -N < ../0001-Should-be-pkgconfig-libudev-not-udev.patch
+    patch -p1 -N < ../0002-core-Add-android-headers-include-path.patch
+    patch -p1 -N < ../0003-debian-compile-hybris-backend-with-binder-support-fo.patch
+    patch -p1 -N < ../0004-Fix-gbinder-includes-to-make-it-compile.patch
+    patch -p1 -N < ../archpkg_strd.patch
+
+    sed "s=@LIB@=lib=g" sensord-qt5.pc.in > sensord-qt5.pc
+    sed "s=@LIBDIR@=/usr/lib=g" tests/tests.xml.in > tests/tests.xml
+}
+
+build() {
+    cd ${pkgname}
+    export LD_RUN_PATH=/usr/lib/sensord-qt5/
+
+    mkdir build && cd build
+    qmake CONFIG+="configs" CONFIG+="autohybris" CONFIG+="binder" ../sensorfw.pro
+    make
+}
+
+package() {
+    cd ${pkgname}
+
+    cd build
+    INSTALL_ROOT="${pkgdir}" make install
+}

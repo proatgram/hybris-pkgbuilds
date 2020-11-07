@@ -1,0 +1,26 @@
+From 0802085bb76c9d63cb627f455908d2b75ab60603 Mon Sep 17 00:00:00 2001
+From: NeKit <nekit1000@gmail.com>
+Date: Thu, 9 Apr 2020 03:09:58 +0200
+Subject: [PATCH 4/4] Fix gbinder includes to make it compile
+
+---
+ core/hybris.pro | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/core/hybris.pro b/core/hybris.pro
+index 06d8b32..cce1ce8 100644
+--- a/core/hybris.pro
++++ b/core/hybris.pro
+@@ -22,6 +22,9 @@ LIBS += -L$$[QT_INSTALL_LIBS] -L../datatypes
+ !contains(CONFIG,binder) {
+     INCLUDEPATH += /usr/include/android
+     LIBS += -lhybris-common -lhardware
++} else {
++    INCLUDEPATH += /usr/include/gbinder /usr/include/gutil /usr/include/glib-2.0
++    INCLUDEPATH += /usr/lib/glib-2.0/include /usr/lib/x86_64-linux-gnu/glib-2.0/include /usr/lib/arm-linux-gnueabihf/glib-2.0/include /usr/lib/aarch64-linux-gnu/glib-2.0/include
+ }
+ 
+ include(../common-install.pri)
+-- 
+2.29.1
+

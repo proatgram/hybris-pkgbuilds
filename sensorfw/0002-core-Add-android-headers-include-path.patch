@@ -1,0 +1,24 @@
+From d709b4f4d2913490ee8728a2e626be1262efac37 Mon Sep 17 00:00:00 2001
+From: Marius Gripsgard <marius@ubports.com>
+Date: Fri, 4 Oct 2019 07:48:01 +0200
+Subject: [PATCH 2/4] core: Add android-headers include path
+
+---
+ core/hybris.pro | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/core/hybris.pro b/core/hybris.pro
+index ebf9ed3..06d8b32 100644
+--- a/core/hybris.pro
++++ b/core/hybris.pro
+@@ -20,6 +20,7 @@ HEADERS += hybrisadaptor.h
+ LIBS += -L$$[QT_INSTALL_LIBS] -L../datatypes
+ 
+ !contains(CONFIG,binder) {
++    INCLUDEPATH += /usr/include/android
+     LIBS += -lhybris-common -lhardware
+ }
+ 
+-- 
+2.29.1
+

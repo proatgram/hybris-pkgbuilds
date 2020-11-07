@@ -1,0 +1,59 @@
+From 236b71004e1b4f64f098b3d36d5d2279a8c17a1b Mon Sep 17 00:00:00 2001
+From: NeKit <nekit1000@gmail.com>
+Date: Wed, 8 Apr 2020 23:36:06 +0200
+Subject: [PATCH 3/4] debian: compile hybris backend with binder support for
+ Android 9
+
+---
+ common-config.pri | 6 +++++-
+ debian/control    | 5 ++++-
+ debian/rules      | 2 +-
+ 3 files changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/common-config.pri b/common-config.pri
+index 2ef4a59..41e0dda 100644
+--- a/common-config.pri
++++ b/common-config.pri
+@@ -42,5 +42,9 @@ contains(CONFIG,hybris) {
+     } else {
+         PKGCONFIG += android-headers libhardware
+     }
++} else {
++    contains(CONFIG,binder) {
++        DEFINES += USE_BINDER=1
++        PKGCONFIG += libgbinder libglibutil gobject-2.0 glib-2.0
++    }
+ }
+-
+diff --git a/debian/control b/debian/control
+index ca7e5fa..e657adb 100644
+--- a/debian/control
++++ b/debian/control
+@@ -12,7 +12,10 @@ Build-Depends: debhelper (>=5),
+                pkg-config,
+                libhardware-dev,
+                android-headers,
+-               libhybris-dev
++               libhybris-dev,
++               libglib2.0-dev,
++               libglibutil-dev,
++               libgbinder-dev
+ Standards-Version: 3.7.3
+ 
+ Package: sensorfw-qt5
+diff --git a/debian/rules b/debian/rules
+index d9ccb41..4afa756 100755
+--- a/debian/rules
++++ b/debian/rules
+@@ -48,7 +48,7 @@ configure-stamp: builddir
+ 	dh_testdir
+ 
+ 	# Add here commands to configure the package.
+-	cd $(BUILD_DIR) && qmake $(QMAKECONFIG) CONFIG+="configs" CONFIG+="autohybris" "QMAKE_CXXFLAGS=$(CFLAGS)" "MAKE_DOCS=$(MAKE_DOCS)" ../$(PROJECT_NAME).pro
++	cd $(BUILD_DIR) && qmake $(QMAKECONFIG) CONFIG+="configs" CONFIG+="autohybris" CONFIG+="binder" "QMAKE_CXXFLAGS=$(CFLAGS)" "MAKE_DOCS=$(MAKE_DOCS)" ../$(PROJECT_NAME).pro
+ 	export LD_RUN_PATH=/usr/lib/sensord-qt5/
+ 
+ 	touch configure-stamp
+-- 
+2.29.1
+

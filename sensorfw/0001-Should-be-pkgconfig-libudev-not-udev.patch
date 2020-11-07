@@ -1,0 +1,25 @@
+From 73316a6d53058d7158a972c0da082c20744e6f5e Mon Sep 17 00:00:00 2001
+From: Marius Gripsgard <marius@ubports.com>
+Date: Sat, 13 Apr 2019 17:47:34 +0200
+Subject: [PATCH 1/4] Should be pkgconfig libudev not udev
+
+---
+ adaptors/iioadaptor/iioadaptor.pro | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/adaptors/iioadaptor/iioadaptor.pro b/adaptors/iioadaptor/iioadaptor.pro
+index 5d1a7f2..4dbccde 100644
+--- a/adaptors/iioadaptor/iioadaptor.pro
++++ b/adaptors/iioadaptor/iioadaptor.pro
+@@ -9,7 +9,7 @@ SOURCES += iioadaptor.cpp \
+ CONFIG += qt debug warn_on link_prl link_pkgconfig plugin
+ 
+ CONFIG += link_pkgconfig
+-PKGCONFIG += udev
++PKGCONFIG += libudev
+ LIBS += -ludev
+ 
+ include( ../adaptor-config.pri )
+-- 
+2.29.1
+
