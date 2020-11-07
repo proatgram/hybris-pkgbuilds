@@ -1,0 +1,73 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+
+pkgname=linux-fxtec-pro1
+pkgver=4.4.153
+pkgrel=1
+pkgdesc="F(x)tec Pro1 kernel package"
+arch=(aarch64)
+url="https://gitlab.com/ubports/community-ports/android9/fxtec-pro1/kernel-fxtec-pro1"
+license=('GPL2')
+makedepends=(python2 bc inetutils perl android-tools)
+_commit=2ec75cffe281897373d8ac69fa946f771b23d03a
+_commit_ufdt=4e3f486d6d8f7008eff9f476b579e453c078d1b6
+source=(https://gitlab.com/ubports/community-ports/android9/fxtec-pro1/kernel-fxtec-pro1/-/archive/${_commit}/kernel-fxtec-pro1-${_commit}.tar.gz
+        https://gitlab.com/Danct12/ufdt-apply-overlay/-/archive/${_commit_ufdt}/ufdt-apply-overlay-${_commit_ufdt}.tar.gz
+        cc-option_wrapper_Wno-frame-larger.patch
+        initrd.img-touch-arm64)
+
+# Variables used for mkbootimg
+deviceinfo_kernel_cmdline="console=ttyMSM0,115200,n8 androidboot.console=ttyMSM0 earlycon=msm_serial_dm,0xc1b0000 androidboot.hardware=qcom user_debug=31 msm_rtb.filter=0x37 ehci-hcd.park=3 lpm_levels.sleep_disabled=1 sched_enable_hmp=1 sched_enable_power_aware=1 service_locator.enable=1 swiotlb=2048 androidboot.configfs=true androidboot.usbcontroller=a800000.dwc3 firmware_class.path=/vendor/firmware_mnt/image loop.max_part=7 console=tty0 systempart=/dev/disk/by-partlabel/userdata"
+deviceinfo_flash_pagesize="4096"
+deviceinfo_flash_offset_base="0x00000000"
+deviceinfo_flash_offset_kernel="0x00008000"
+deviceinfo_flash_offset_ramdisk="0x01000000"
+deviceinfo_flash_offset_second="0x00f00000"
+deviceinfo_flash_offset_tags="0x00000100"
+
+md5sums=('0dd2b0fb6ddff0b46f71de5628ddcb78'
+         '62c58a8bcb19d99c25a251f04fd3a72a'
+         'c7d4105602e115b96851e601e4730930'
+         '1b752cfe8002447a906a26b1f40f4cb4')
+
+prepare() {
+    cd kernel-fxtec-pro1-${_commit}
+    patch -p1 -N < ../cc-option_wrapper_Wno-frame-larger.patch
+}
+
+build() {
+    # Compile ufdt-apply-overlay first
+    cd ufdt-apply-overlay-${_commit_ufdt}
+    make
+
+    # Compile kernel
+    unset LDFLAGS
+    export ARCH=arm64
+    cd .. && cd kernel-fxtec-pro1-${_commit}
+    make O=out lineage-pro1_defconfig
+    make O=out
+}
+
+package() {
+    cd kernel-fxtec-pro1-${_commit}
+    make O=out INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH="${pkgdir}/usr" modules_install
+
+    ${srcdir}/ufdt-apply-overlay-${_commit_ufdt}/ufdt_apply_overlay \
+        out/arch/arm64/boot/dts/qcom/msm8998-v2-qrd-skuk-t5.dtb \
+        out/arch/arm64/boot/dts/qcom/msm8998-v2-qrd-skuk-t5-overlay.dtbo \
+        out/arch/arm64/boot/dts/qcom/msm8998-v2-qrd-skuk-t5-overlay-merged.dtb
+    cat out/arch/arm64/boot/Image.gz \
+        out/arch/arm64/boot/dts/qcom/msm8998-v2-qrd-skuk-t5-overlay-merged.dtb > out/arch/arm64/boot/Image.gz-dtb
+
+    # Generate boot image
+    cd ..
+    mkdir -p "${pkgdir}/boot"
+    mkbootimg --kernel "kernel-fxtec-pro1-${_commit}/out/arch/arm64/boot/Image.gz-dtb" \
+        --ramdisk "initrd.img-touch-arm64" \
+        --base $deviceinfo_flash_offset_base \
+        --kernel_offset $deviceinfo_flash_offset_kernel \
+        --ramdisk_offset $deviceinfo_flash_offset_ramdisk \
+        --second_offset $deviceinfo_flash_offset_second \
+        --tags_offset $deviceinfo_flash_offset_tags \
+        --pagesize $deviceinfo_flash_pagesize \
+        --cmdline "$deviceinfo_kernel_cmdline" -o "${pkgdir}/boot/boot.img-flashable"
+}
