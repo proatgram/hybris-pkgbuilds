@@ -1,0 +1,26 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+
+pkgname=hadess-sensorfw-proxy
+pkgver=0.1.1
+pkgrel=1
+pkgdesc="Sensorfw sensors to hadess iio proxy adaptor"
+arch=(armv7h aarch64)
+url="https://github.com/hybris-mobian/hadess-sensorfw-proxy"
+license=('GPL3')
+depends=('sensorfw')
+makedepends=('git' 'cmake')
+_commit="f6689f2a070a33b11554216e84dceff0c5bc4957" # tags/0.12.1
+source=(${pkgname}::git+https://github.com/hybris-mobian/hadess-sensorfw-proxy.git#commit=${_commit})
+sha512sums=('SKIP')
+
+build() {
+    cmake -B build -S "${pkgname}" \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_BUILD_TYPE=Release
+    make -C build
+}
+
+package() {
+    DESTDIR="${pkgdir}" make -C build install
+    install -Dm644 "${pkgname}/hadess-sensorfw-proxy.service" "${pkgdir}/usr/lib/systemd/system/hadess-sensorfw-proxy.service"
+}
