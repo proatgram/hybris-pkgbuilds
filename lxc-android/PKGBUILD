@@ -1,0 +1,39 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+
+pkgname=lxc-android
+pkgver=92.584cd3a
+pkgrel=1
+pkgdesc="lxc configuration for starting android"
+arch=('any')
+url="https://github.com/hybris-mobian/lxc-android"
+license=('GPL2')
+depends=('lxc')
+makedepends=('git')
+source=(${pkgname}::git+https://github.com/hybris-mobian/lxc-android.git#branch=bullseye
+        0001-generate-udev-rules-after-mounting.patch)
+options=(emptydirs)
+sha512sums=('SKIP'
+            'c9ca63b2cb97ff499ccfaf8ddbeac11a54abb766efaa74e7632255b97b5f2ce76c2cc932b231aa4f572f2cdf90e01225907d62a9c5bbcc7c65de8d0df4603c6a')
+
+pkgver() {
+  cd "${srcdir}/${pkgname}"
+  echo $(git rev-list --count HEAD).$(git rev-parse --short HEAD)
+}
+
+prepare() {
+    cd ${pkgname}
+    patch -p1 -N < ../0001-generate-udev-rules-after-mounting.patch
+}
+
+package() {
+    cp -rv ${pkgname}/* ${pkgdir}
+    rm -r ${pkgdir}/debian
+
+    mkdir -p ${pkgdir}/usr/lib
+    cp -rv ${pkgdir}/lib/* ${pkgdir}/usr/lib
+    rm -r ${pkgdir}/lib
+
+    mv ${pkgdir}/usr/sbin ${pkgdir}/usr/bin
+
+    mkdir -p ${pkgdir}/var/lib/lxc/android/rootfs
+}

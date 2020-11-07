@@ -1,0 +1,28 @@
+From cab22a70829192eb43aeb74a714f90d2e0e4c699 Mon Sep 17 00:00:00 2001
+From: Danct12 <danct12@disroot.org>
+Date: Fri, 30 Oct 2020 02:03:30 +0700
+Subject: [PATCH] generate udev rules after mounting
+
+Signed-off-by: Danct12 <danct12@disroot.org>
+---
+ usr/lib/lxc-android/mount-android | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/usr/lib/lxc-android/mount-android b/usr/lib/lxc-android/mount-android
+index e890443..88be14e 100755
+--- a/usr/lib/lxc-android/mount-android
++++ b/usr/lib/lxc-android/mount-android
+@@ -3,3 +3,10 @@ mkdir -p /dev/cpuset
+ mount none /dev/cpuset -t cpuset -o nodev,noexec,nosuid
+ 
+ BIND_MOUNT_PATH="/var/lib/lxc/android/rootfs" /usr/sbin/mount-android.sh
++
++# Generate udev rules
++if [ ! -f /etc/udev/rules.d/70-hybris-autogen.rules ]; then
++    echo "Android udev rules doesn't exist. Generating..."
++    cat /var/lib/lxc/android/rootfs/ueventd*.rc /vendor/ueventd*.rc | grep ^/dev | sed -e 's/^\/dev\///' | awk '{printf "ACTION==\"add\", KERNEL==\"%s\", OWNER=\"%s\", GROUP=\"%s\", MODE=\"%s\"\n",$1,$3,$4,$2}' | sed -e 's/\r//' >/etc/udev/rules.d/70-hybris-autogen.rules
++    reboot
++fi
+-- 
+2.29.1
+
