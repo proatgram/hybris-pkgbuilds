@@ -1,0 +1,35 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+
+pkgname=device-fxtec-pro1
+pkgver=0.1
+pkgrel=1
+pkgdesc="F(x)tec Pro1 adapation package"
+arch=(aarch64)
+url="https://danctnix.org"
+license=('MIT')
+depends=('linux-fxtec-pro1' 'hybris-base' 'hybris-base-pulseaudio')
+source=(sensorfw-primaryuse.conf
+        phoc.ini
+        pro1-audio-quirk.service
+        machine-info)
+md5sums=('29b2165acebb7ab745d84e835478208f'
+         '5de01b276d19515e46e468e6d60b8ee8'
+         'ee4be531f48cd2970a19c8731da3c3d3'
+         '6eff88ab9e14516ea753299a849a3717')
+
+package() {
+    install -Dm644 sensorfw-primaryuse.conf "${pkgdir}/etc/sensorfw/primaryuse.conf"
+    install -Dm644 phoc.ini "${pkgdir}/etc/phosh/phoc.ini"
+    install -Dm644 machine-info "${pkgdir}/etc/machine-info"
+
+    mkdir -p "${pkgdir}/etc/modules-load.d"
+    echo "wlan" > "${pkgdir}/etc/modules-load.d/wlan.conf"
+
+    mkdir -p "${pkgdir}/usr/libexec/droid-hybris/system/lib64/hw"
+    ln -s /vendor/lib64/hw/android.hardware.gnss@1.0-impl-qti.so "${pkgdir}/usr/libexec/droid-hybris/system/lib64/hw/gps.msm8998.so"
+    ln -s /vendor/lib64/hw/android.hardware.sensors@1.0-impl.so "${pkgdir}/usr/libexec/droid-hybris/system/lib64/hw/sensors.msm8998.so"
+
+    mkdir -p "${pkgdir}/usr/lib/systemd/system/graphical.target.wants"
+    install -Dm644 pro1-audio-quirk.service "${pkgdir}/usr/lib/systemd/system/pro1-audio-quirk.service"
+    ln -s ../pro1-audio-quirk.service "${pkgdir}/usr/lib/systemd/system/graphical.target.wants/pro1-audio-quirk.service"
+}

@@ -1,0 +1,11 @@
+[Unit]
+Description=Vendor audio fix on Pro1
+After=android-mount.service
+Before=lxc@android.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/mount -o bind /system/lib64/libstdc++.so /vendor/lib64/libstdc++.so
+
+[Install]
+WantedBy=graphical.target
