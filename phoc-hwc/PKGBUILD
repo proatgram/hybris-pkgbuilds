@@ -1,0 +1,36 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+pkgname=phoc-hwc
+pkgver=0.4.4
+pkgrel=1
+pkgdesc="A compositor for phones based on wlroots - with hwcomposer backend"
+arch=('armv7h' 'aarch64')
+url="https://source.puri.sm/Librem5/phoc"
+license=('GPL')
+provides=('phoc')
+depends=('gobject-introspection' 'gnome-desktop' 'libinput' 'mutter'
+         'xcb-util-errors' 'xcb-util-wm' 'wlroots-hwc')
+makedepends=('meson' 'ninja')
+
+_commit="4bbe8835d262a5f1a97986f8830b6a19c2579b4b"
+source=(https://github.com/hybris-mobian/phoc/archive/${_commit}.tar.gz
+	206.patch)
+
+prepare() {
+	cd phoc-${_commit}
+	patch -p1 -N < ../206.patch
+}
+
+build() {
+	arch-meson phoc-${_commit} output -Dtests=false -Dembed-wlroots=disabled
+	ninja -C output
+}
+
+package() {
+	DESTDIR="$pkgdir" ninja -C output install
+
+	# Install scale-to-fit helper
+	install -Dm755 phoc-${_commit}/helpers/scale-to-fit "$pkgdir"/usr/bin/scale-to-fit
+}
+
+md5sums=('45006b4e6ac3ebe4ec2582bf6cc34483'
+         'f4f4f563293ddd0a6c992efb2db457d9')
