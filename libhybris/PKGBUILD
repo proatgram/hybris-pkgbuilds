@@ -1,0 +1,76 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+
+pkgname=libhybris
+pkgver=1718.de79ed1
+pkgrel=1
+pkgdesc="libhybris allows to use bionic-based HW adaptations"
+arch=('armv7h' 'aarch64')
+url="https://github.com/libhybris/libhybris"
+license=('Apache')
+depends=('wayland')
+makedepends=('git' 'android-headers-9.0')
+source=("libhybris::git+https://github.com/hybris-mobian/libhybris")
+install=libhybris.install
+options=(debug !strip)
+md5sums=('SKIP')
+
+pkgver() {
+  cd "${srcdir}/libhybris"
+  echo $(git rev-list --count HEAD).$(git rev-parse --short HEAD)
+}
+
+build() {
+    cd libhybris/hybris
+
+    NOCONFIGURE=1 ./autogen.sh
+
+    if [ "$CARCH" == "armv7h" ]; then
+        _ldpath="/usr/libexec/droid-hybris/system/lib:/vendor/lib:/system/lib"
+        _arch="arm"
+        _enable_quirks="--enable-mali-quirks --enable-adreno-quirks"
+    elif [ "$CARCH" == "aarch64" ]; then
+        _ldpath="/usr/libexec/droid-hybris/system/lib64:/vendor/lib64:/system/lib64"
+        _arch="arm64"
+        _enable_quirks="--enable-mali-quirks --enable-adreno-quirks"
+    elif [ "$CARCH" == "i686" -o "$CARCH" == "x86_64" ]; then
+        _ldpath="/usr/libexec/droid-hybris/system/lib:/vendor/lib:/system/lib"
+        _arch="x86"
+    fi
+
+    msg2 "building ${pkgname} for ${_arch}"
+    ./configure \
+        --prefix=/usr \
+        --enable-wayland \
+        --enable-trace \
+        --enable-debug \
+        --enable-experimental \
+        --with-android-headers=/usr/include/android \
+        --with-default-hybris-ld-library-path=${_ldpath} \
+        --enable-arch=${_arch} \
+        $_enable_quirks \
+        --enable-property-cache
+    make -j1
+}
+
+package() {
+    cd libhybris/hybris
+    make DESTDIR="${pkgdir}" install
+
+    rm -f ${pkgdir}/usr/lib/pkgconfig/{egl,glesv1_cm,glesv2,OpenCL}.pc
+
+    cd "${pkgdir}/usr/include"
+    # Move libhybris-provided headers into hybris dir
+    mv CL EGL GLES GLES2 GLES3 KHR VG hybris
+
+    # Symlink eglhybris.h
+    mkdir -p EGL
+    cd EGL
+    ln -s ../hybris/EGL/eglhybris.h
+
+    mkdir -p "${pkgdir}/usr/lib/libhybris-egl/"
+    for i in $(find ${pkgdir}/usr/lib/ -name 'libEGL.so*' -or -name 'libGLES*' -or -name 'libOpenCL*'); do
+      mv "$i" "${pkgdir}/usr/lib/libhybris-egl/"
+    done
+    mkdir -p "${pkgdir}/etc/ld.so.conf.d"
+    echo /usr/lib/libhybris-egl > ${pkgdir}/etc/ld.so.conf.d/00_libhybris-egl.conf
+}
