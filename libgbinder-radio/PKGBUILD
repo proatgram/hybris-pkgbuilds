@@ -1,0 +1,24 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+
+pkgname=libgbinder-radio
+pkgver=1.0.11
+pkgrel=1
+pkgdesc="Helper for communicating with IRadio binder interface"
+arch=(armv7h aarch64)
+url="https://github.com/mer-hybris/libgbinder-radio.git"
+license=('BSD')
+depends=('libgbinder' 'libglibutil' 'glib2')
+makedepends=('git')
+_commit="30e7563d94c502a8b690fe5b9fa1a63dbc46ae9e" # tags/1.0.11
+source=(${pkgname}::git+https://github.com/mer-hybris/libgbinder-radio.git#commit=${_commit})
+sha512sums=('SKIP')
+
+build() {
+    cd ${pkgname}
+    make KEEP_SYMBOLS=1 release pkgconfig
+}
+
+package() {
+    cd ${pkgname}
+    make install-dev DESTDIR="${pkgdir}"
+}
