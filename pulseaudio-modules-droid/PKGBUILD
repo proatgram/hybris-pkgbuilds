@@ -1,0 +1,40 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+
+pkgname=pulseaudio-modules-droid
+_pkgver=12.2.86
+_pa_version=13.0
+pkgver=${_pa_version}_${_pkgver}
+pkgrel=1
+pkgdesc="PulseAudio Droid modules by Mer project"
+arch=(armv7h aarch64)
+url="https://github.com/hybris-mobian/pulseaudio-modules-droid"
+license=('LGPL2')
+depends=(pulseaudio=${_pa_version} libhybris libevdev)
+makedepends=('android-headers-9.0' 'pulsecore-headers')
+_commit="2ccbf1473988dce376ead63e941c18d9e71d04ba"
+source=($pkgname-${_commit}.tar.gz::https://github.com/hybris-mobian/pulseaudio-modules-droid/archive/${_commit}.tar.gz)
+md5sums=('eec2adfc4fe90549eecf3cd5c2473e5c')
+
+prepare() {
+    cd $pkgname-${_commit}
+
+    echo ${_pkgver} > .tarball-version
+    autoreconf --force --install
+}
+
+build() {
+    cd $pkgname-${_commit}
+    ./configure \
+        --prefix=/usr \
+        --sysconfdir=/etc \
+        --mandir=/usr/share/man \
+        --localstatedir=/var \
+        --enable-shared \
+        --disable-static
+    make
+}
+
+package() {
+    cd $pkgname-${_commit}
+    make -j1 DESTDIR="$pkgdir" install
+}
