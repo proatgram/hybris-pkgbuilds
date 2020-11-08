@@ -1,0 +1,28 @@
+From 8f4be664d283f964735b623211efb0c6ceca5a96 Mon Sep 17 00:00:00 2001
+From: "Eugenio Paolantonio (g7)" <me@medesimo.eu>
+Date: Sat, 7 Nov 2020 21:41:09 +0100
+Subject: [PATCH] GLES: glMapBufferRange: allow disabling glMapBufferRange from
+ environment
+
+Some implementations (observed on hybris devices) seem to have trouble for
+it, so now if COGL_DISABLE_MAPBUFFERRANGE is set the COGL_FEATURE_ID_MAP_BUFFER_{WRITE,READ}
+flags are not advertised.
+
+Signed-off-by: Eugenio Paolantonio (g7) <me@medesimo.eu>
+---
+ cogl/driver/gl/gles/cogl-driver-gles.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cogl/driver/gl/gles/cogl-driver-gles.c b/cogl/driver/gl/gles/cogl-driver-gles.c
+index d8d1d0ad..44d854d9 100644
+--- a/cogl/driver/gl/gles/cogl-driver-gles.c
++++ b/cogl/driver/gl/gles/cogl-driver-gles.c
+@@ -405,7 +405,7 @@ _cogl_driver_update_features (CoglContext *context,
+                       COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE, TRUE);
+     }
+ 
+-  if (context->glMapBufferRange)
++  if (context->glMapBufferRange && (g_getenv ("COGL_DISABLE_MAPBUFFERRANGE") == NULL))
+     {
+       /* MapBufferRange in ES3+ does support mapping for read */
+       flags |= (COGL_FEATURE_MAP_BUFFER_FOR_WRITE |
