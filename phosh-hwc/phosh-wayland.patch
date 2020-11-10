@@ -1,0 +1,10 @@
+diff --git a/data/phosh.in b/data/phosh.in
+index 728ec38..3ec5938 100755
+--- a/data/phosh.in
++++ b/data/phosh.in
+@@ -50,4 +50,4 @@ fi
+ # variables from /etc/profile.d (XDG_*)
+ [ -n "$WLR_BACKENDS" ] || WLR_BACKENDS=drm,libinput
+ export WLR_BACKENDS
+-exec "${COMPOSITOR}" -C "${PHOC_INI}" -E "bash -lc 'gnome-session $(gnome_session_args)'"
++exec "${COMPOSITOR}" -C "${PHOC_INI}" -E "EGL_PLATFORM=wayland bash -lc 'gnome-session $(gnome_session_args)'"
