@@ -1,7 +1,7 @@
 pkgbase=hybris-base
 pkgname=($pkgbase $pkgbase-phosh $pkgbase-pulseaudio)
 pkgver=0.1
-pkgrel=1
+pkgrel=2
 pkgdesc="Android hybris adapation"
 url="https://danctnix.org"
 arch=(any)
@@ -12,7 +12,7 @@ source=(75-hybris-seat.rules
         touch-pulse.conf
         touch-stream-restore.table)
 sha512sums=('4cbcee590bb5c97da8e4bcd9af1f9cc6a06069e9961e577f3365c124403694ba68eef642253c4e8947de24c192e1471faa80d1b8bca380dbfa9180e6858cdb88'
-            'c0f0bc10e37d891a2696725e8413f5532451309f19b22dff8de1833e637e106acdf2c76b9178bbe44b9d8d3e335a838819ef6e55468a2895fc2cba3d6668e9db'
+            'c51bdd1627cc94bcb862cdba6888f052e8c3f19858785fa03b8dd44f80f3a3cb85e9631118f39165b925943ee3e0d9dd817448dd65693a875c09a75a6b01ee08'
             'aeab69e15875346d9d3562941155191fa1ba604435c3e8ad2be1cee8fb29926f16e213ba2ffe6655c49dd6996b3f8cf73671fa22b8333c62375ae428712273fd'
             '19446642cf7deff1e9e41214ddcc121b95d1bd5216cdf95e2ab61aae4ad6e3cc3118e9364e6c701023190cf03e9d6f68df14a90f03bcaa89eeab470e89a83799'
             '7ab8a5eaf4a0eec08a4c36db858a6248a4ffc78d0b8a522dd86d059ae794bee0651863f4b229037519b219ceedd9d6af13c8e94695d2769a0f9836cb9bd84fee')
@@ -24,7 +24,7 @@ package_hybris-base(){
 }
 
 package_hybris-base-phosh(){
-    depends=($pkgbase phoc-hwc phosh-hwc gnome-settings-daemon-hybris)
+    depends=($pkgbase cogl-hwc phoc-hwc phosh-hwc gnome-settings-daemon-hybris)
     pkgdesc+=' - Phosh meta package'
     install -Dm644 phoshsvc-hybris.conf ${pkgdir}/usr/lib/systemd/system/phosh.service.d/20-hybris.conf
 }
