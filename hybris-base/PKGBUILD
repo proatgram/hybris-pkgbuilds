@@ -1,7 +1,7 @@
 pkgbase=hybris-base
 pkgname=($pkgbase $pkgbase-phosh $pkgbase-pulseaudio)
 pkgver=0.1
-pkgrel=2
+pkgrel=3
 pkgdesc="Android hybris adapation"
 url="https://danctnix.org"
 arch=(any)
@@ -10,12 +10,14 @@ source=(75-hybris-seat.rules
         phoshsvc-hybris.conf
         touch-android9.pa
         touch-pulse.conf
-        touch-stream-restore.table)
+        touch-stream-restore.table
+        000-ofono-hybris.gschema.override)
 sha512sums=('4cbcee590bb5c97da8e4bcd9af1f9cc6a06069e9961e577f3365c124403694ba68eef642253c4e8947de24c192e1471faa80d1b8bca380dbfa9180e6858cdb88'
             'c51bdd1627cc94bcb862cdba6888f052e8c3f19858785fa03b8dd44f80f3a3cb85e9631118f39165b925943ee3e0d9dd817448dd65693a875c09a75a6b01ee08'
             'aeab69e15875346d9d3562941155191fa1ba604435c3e8ad2be1cee8fb29926f16e213ba2ffe6655c49dd6996b3f8cf73671fa22b8333c62375ae428712273fd'
             '19446642cf7deff1e9e41214ddcc121b95d1bd5216cdf95e2ab61aae4ad6e3cc3118e9364e6c701023190cf03e9d6f68df14a90f03bcaa89eeab470e89a83799'
-            '7ab8a5eaf4a0eec08a4c36db858a6248a4ffc78d0b8a522dd86d059ae794bee0651863f4b229037519b219ceedd9d6af13c8e94695d2769a0f9836cb9bd84fee')
+            '7ab8a5eaf4a0eec08a4c36db858a6248a4ffc78d0b8a522dd86d059ae794bee0651863f4b229037519b219ceedd9d6af13c8e94695d2769a0f9836cb9bd84fee'
+            '0ef7445bace93403af279e465a5882008310b9711f0147d44161d9491a737abe707f8214a853fd337158988307ce35bf83f22b78d5a08110c8136fe61271983e')
 
 package_hybris-base(){
     depends=(libhybris)
@@ -25,8 +27,10 @@ package_hybris-base(){
 
 package_hybris-base-phosh(){
     depends=($pkgbase cogl-hwc phoc-hwc phosh-hwc gnome-settings-daemon-hybris)
+    install="$pkgname.install"
     pkgdesc+=' - Phosh meta package'
     install -Dm644 phoshsvc-hybris.conf ${pkgdir}/usr/lib/systemd/system/phosh.service.d/20-hybris.conf
+    install -Dm644 000-ofono-hybris.gschema.override ${pkgdir}/usr/share/glib-2.0/schemas/000-ofono-hybris.gschema.override
 }
 
 package_hybris-base-pulseaudio() {
