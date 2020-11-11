@@ -1,0 +1,49 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: Jerome Leclanche <jerome@leclan.ch>
+
+pkgname=ofono-hybris
+pkgver=1.23
+pkgrel=1
+pkgdesc="Infrastructure for building mobile telephony (GSM/UMTS) applications - hybris-mobian fork"
+url="https://github.com/hybris-mobian/ofono"
+arch=('aarch64' 'armv7h')
+license=("GPL2")
+depends=("bluez" "libglibutil" "libgrilio" "libwspcodec" "libmce-glib" "glib2" "udev" "mobile-broadband-provider-info")
+makedepends=("git" "dbus-glib")
+conflicts=(ofono)
+provides=(ofono)
+_commit="10a6e7793694b572558b1425bc0189f6f363ef83"
+source=($pkgname::git+https://github.com/hybris-mobian/ofono.git#commit=$_commit)
+sha256sums=('SKIP')
+
+build() {
+	cd "$pkgname/ofono"
+	#unset CFLAGS CXXFLAGS CPPFLAGS LDFLAGS
+	autoreconf -fi
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--sbindir=/usr/bin \
+		--disable-bluez4 \
+		--disable-static \
+		--enable-sailfish-bt \
+		--enable-sailfish-manager \
+		--enable-sailfish-provision \
+		--enable-sailfish-pushforwarder \
+		--enable-sailfish-rilmodem \
+		--disable-add-remove-context \
+		--disable-isimodem \
+		--disable-qmimodem \
+		--with-systemdunitdir=/usr/lib/systemd/system
+	make
+}
+
+package() {
+	cd "$pkgname/ofono"
+	make DESTDIR="$pkgdir" install
+	install -Dm644 "$srcdir/$pkgname/ofono/src/ofono.conf" "$pkgdir/etc/dbus-1/system.d/ofono.conf"
+	install -Dm644 "$srcdir/$pkgname/debian/ofono.service" "$pkgdir/usr/lib/systemd/system/ofono.service"
+
+	# make sure we can supply our own ril_subscription.conf
+	mv "$pkgdir/etc/ofono/ril_subscription.conf" "$pkgdir/etc/ofono/ril_subscription.conf.sample"
+}
