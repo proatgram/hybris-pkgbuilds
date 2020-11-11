@@ -1,0 +1,18 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+
+pkgname=mce-dev
+pkgver=1.28.3
+pkgrel=1
+pkgdesc="Development files for mce"
+arch=('any')
+url="https://git.sailfishos.org/mer-core/mce-dev"
+license=('LGPL2.1')
+_commit="9d2cb2a0393d903c84bde4c6acb212dc6a30f780"
+makedepends=('git')
+source=($pkgname::git+https://git.sailfishos.org/mer-core/mce-dev.git#commit=$_commit)
+md5sums=('SKIP')
+
+package() {
+    cd $pkgname
+    make install DESTDIR="${pkgdir}"
+}
