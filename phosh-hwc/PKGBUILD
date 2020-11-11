@@ -1,8 +1,8 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh-hwc
 _pkgname=phosh
-pkgver=0.4.5
-pkgrel=2
+pkgver=0.5.0
+pkgrel=1
 pkgdesc="The Librem5 Shell"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://source.puri.sm/Librem5/phosh"
@@ -12,18 +12,20 @@ conflicts=('phosh')
 depends=('gtk3' 'libhandy' 'gnome-desktop' 'gnome-session' 'upower' 'libpulse'
          'gcr' 'feedbackd' 'libnm' 'phoc-hwc')
 makedepends=('meson' 'ninja')
-_commit_phosh=da54b8bcd05c8fc8c035997c05dd69861ae664ec
+_commit_phosh=097fddeb1a67e36added362740f967159f8cb8fc
 _commit_gvc="ae1a34aafce7026b8c0f65a43c9192d756fe1057"
 source=("https://github.com/hybris-mobian/phosh/archive/${_commit_phosh}.tar.gz"
 	"https://gitlab.gnome.org/GNOME/libgnome-volume-control/-/archive/$_commit_gvc/libgnome-volume-control-$_commit_gvc.tar.gz"
 	'pam_phosh'
 	'sm.puri.OSK0.desktop'
 	'phosh.service'
-	'phosh-wayland.patch')
+	'phosh-wayland.patch'
+	'0001-Revert-home-Bind-key-to-show-overview.patch')
 
 prepare() {
 	cd ${_pkgname}-${_commit_phosh}
 	patch -p1 -N < ../phosh-wayland.patch
+	patch -p1 -N < ../0001-Revert-home-Bind-key-to-show-overview.patch
 
 	rm -r subprojects/gvc
 	mv "$srcdir/libgnome-volume-control-$_commit_gvc" subprojects/gvc
@@ -45,9 +47,10 @@ package() {
 		"$pkgdir"/usr/share/applications/sm.puri.OSK0.desktop
 }
 
-md5sums=('0e548cab5feb75b979289e794f4d0697'
+md5sums=('a42bbca304ffe6d0e1dcfad6fdd2f565'
          'c08f04485db11997525c139346faecc8'
          '6d5a0d561f8362bf91f85c236a88395d'
          '30c7febb5cbbac40984fb50d66a88639'
          'efeeab2f55315f576c88e45c494edc7c'
-         'e7cd93c35ef76d3c889b06ca18ceebb8')
+         'e7cd93c35ef76d3c889b06ca18ceebb8'
+         '5e1b693110755318ebc4a10dea629772')
