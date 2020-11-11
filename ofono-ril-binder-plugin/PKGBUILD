@@ -1,0 +1,33 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+
+pkgbase=ofono-ril-binder-plugin
+pkgname=(ofono-ril-binder-plugin libgrilio-binder)
+pkgver=1.0.16
+pkgrel=1
+pkgdesc="Ofono RIL binder transport plugin"
+arch=(armv7h aarch64)
+url="https://github.com/mer-hybris/ofono-ril-binder-plugin"
+license=('BSD')
+depends=('libgrilio' 'ofono-hybris' 'libgbinder-radio')
+makedepends=('git')
+_commit="20402845052db81ebe804293e4a6229804ea4dbe" # tags/1.0.16
+source=(${pkgname}::git+https://github.com/mer-hybris/ofono-ril-binder-plugin.git#commit=${_commit})
+sha512sums=('SKIP')
+
+build() {
+    cd ${pkgbase}
+    make -j1 KEEP_SYMBOLS=1 release pkgconfig
+    make install-dev DESTDIR="${srcdir}/tmp"
+}
+
+package_ofono-ril-binder-plugin() {
+    depends+=('libgrilio-binder')
+    mkdir -p "${pkgdir}/usr/lib"
+    mv "${srcdir}/tmp/usr/lib/ofono" "${pkgdir}/usr/lib/ofono"
+}
+
+package_libgrilio-binder() {
+    mv "${srcdir}/tmp/usr" "${pkgdir}/usr"
+}
+
+
