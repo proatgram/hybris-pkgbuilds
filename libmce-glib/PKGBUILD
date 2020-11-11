@@ -1,0 +1,24 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+
+pkgname=libmce-glib
+pkgver=1.0.11
+pkgrel=1
+pkgdesc="Development files for mce"
+arch=(armv7h aarch64)
+url="https://git.sailfishos.org/mer-core/libmce-glib"
+license=('BSD')
+_commit="2a38041345f5db81a0c4176479f364c25b18d5c1"
+depends=('libglibutil' 'glib2')
+makedepends=('git' 'python3' 'mce-dev')
+source=($pkgname::git+https://git.sailfishos.org/mer-core/libmce-glib.git#commit=$_commit)
+md5sums=('SKIP')
+
+build() {
+    cd $pkgname
+    make KEEP_SYMBOLS=1 release pkgconfig
+}
+
+package() {
+    cd $pkgname
+    make install-dev DESTDIR="${pkgdir}"
+}
