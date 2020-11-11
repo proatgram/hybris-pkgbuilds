@@ -1,0 +1,24 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+
+pkgname=libwspcodec
+pkgver=2.2.4
+pkgrel=1
+pkgdesc="WSP encoder and decoder library"
+arch=(armv7h aarch64)
+url="https://git.sailfishos.org/mer-core/libwspcodec"
+license=('BSD')
+_commit="c50f49ca6eb8348c1051b26fdb905e5b593dfcdd"
+depends=('glib2')
+makedepends=('git')
+source=($pkgname::git+https://git.sailfishos.org/mer-core/libwspcodec.git#commit=$_commit)
+md5sums=('SKIP')
+
+build() {
+    cd $pkgname
+    make KEEP_SYMBOLS=1 release pkgconfig
+}
+
+package() {
+    cd $pkgname
+    make install-dev DESTDIR="${pkgdir}"
+}
