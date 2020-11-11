@@ -3,7 +3,7 @@
 
 pkgname=wlroots-hwc
 pkgver=0.11.0
-pkgrel=2
+pkgrel=3
 license=('MIT')
 pkgdesc='Modular Wayland compositor library - with hwcomposer backend'
 url='https://github.com/swaywm/wlroots'
@@ -31,8 +31,15 @@ provides=(
 _commit="7bb4fc17bf3b24b3bfb3dd2c7af25a94c91b691a"
 source=(
     "wlroots-$_commit.tar.gz::https://github.com/hybris-mobian/wlroots/archive/${_commit}.zip"
+    '1b2661c5f4b6799377b45abe65d34806052da19a.patch'
 )
-sha256sums=('c0ff1be4ba1c676a315e880f4b2725788a39782b09b033f8d2835a64a3c47165')
+sha256sums=('c0ff1be4ba1c676a315e880f4b2725788a39782b09b033f8d2835a64a3c47165'
+            'e3a5a9ecd798138da4cdf3b2c107c95cac8abbc15b3424903bb04cd1038e1966')
+
+prepare() {
+    cd "wlroots-$_commit"
+    patch -p1 -N < ../1b2661c5f4b6799377b45abe65d34806052da19a.patch
+}
 
 build() {
     meson "wlroots-$_commit" build \
