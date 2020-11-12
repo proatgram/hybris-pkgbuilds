@@ -2,7 +2,7 @@
 
 pkgname=device-fxtec-pro1
 pkgver=0.1
-pkgrel=1
+pkgrel=2
 pkgdesc="F(x)tec Pro1 adapation package"
 arch=(aarch64)
 url="https://danctnix.org"
@@ -11,16 +11,21 @@ depends=('linux-fxtec-pro1' 'hybris-base' 'hybris-base-pulseaudio')
 source=(sensorfw-primaryuse.conf
         phoc.ini
         pro1-audio-quirk.service
-        machine-info)
+        machine-info
+        ril_subscription.conf)
 md5sums=('29b2165acebb7ab745d84e835478208f'
          '5de01b276d19515e46e468e6d60b8ee8'
          'ee4be531f48cd2970a19c8731da3c3d3'
-         '6eff88ab9e14516ea753299a849a3717')
+         '6eff88ab9e14516ea753299a849a3717'
+         '30f8e6e7b68c719d7cf1e714380b94be')
 
 package() {
     install -Dm644 sensorfw-primaryuse.conf "${pkgdir}/etc/sensorfw/primaryuse.conf"
     install -Dm644 phoc.ini "${pkgdir}/etc/phosh/phoc.ini"
     install -Dm644 machine-info "${pkgdir}/etc/machine-info"
+
+    # ofono config
+    install -Dm644 ril_subscription.conf "${pkgdir}/etc/ofono/ril_subscription.conf"
 
     mkdir -p "${pkgdir}/etc/modules-load.d"
     echo "wlan" > "${pkgdir}/etc/modules-load.d/wlan.conf"
