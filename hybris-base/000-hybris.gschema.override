@@ -1,0 +1,5 @@
+[org.gnome.settings-daemon.plugins.power]
+sleep-inactive-battery-type='nothing'
+
+[sm.puri.phosh]
+wwan-backend='ofono'

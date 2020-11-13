@@ -1,7 +1,7 @@
 pkgbase=hybris-base
 pkgname=($pkgbase $pkgbase-phosh $pkgbase-pulseaudio)
 pkgver=0.1
-pkgrel=3
+pkgrel=4
 pkgdesc="Android hybris adapation"
 url="https://danctnix.org"
 arch=(any)
@@ -11,18 +11,23 @@ source=(75-hybris-seat.rules
         touch-android9.pa
         touch-pulse.conf
         touch-stream-restore.table
-        000-ofono-hybris.gschema.override)
+        000-hybris.gschema.override
+        hybris-override.sh
+        sm.puri.Calls.desktop)
 sha512sums=('4cbcee590bb5c97da8e4bcd9af1f9cc6a06069e9961e577f3365c124403694ba68eef642253c4e8947de24c192e1471faa80d1b8bca380dbfa9180e6858cdb88'
             'c51bdd1627cc94bcb862cdba6888f052e8c3f19858785fa03b8dd44f80f3a3cb85e9631118f39165b925943ee3e0d9dd817448dd65693a875c09a75a6b01ee08'
             'aeab69e15875346d9d3562941155191fa1ba604435c3e8ad2be1cee8fb29926f16e213ba2ffe6655c49dd6996b3f8cf73671fa22b8333c62375ae428712273fd'
             '19446642cf7deff1e9e41214ddcc121b95d1bd5216cdf95e2ab61aae4ad6e3cc3118e9364e6c701023190cf03e9d6f68df14a90f03bcaa89eeab470e89a83799'
             '7ab8a5eaf4a0eec08a4c36db858a6248a4ffc78d0b8a522dd86d059ae794bee0651863f4b229037519b219ceedd9d6af13c8e94695d2769a0f9836cb9bd84fee'
-            '0ef7445bace93403af279e465a5882008310b9711f0147d44161d9491a737abe707f8214a853fd337158988307ce35bf83f22b78d5a08110c8136fe61271983e')
+            '379b5f38c90643b980ed87809adae314d03c00f697cce4a8f991c223ef00cac7c1454c577c49ff9a513c125074f14041c5cf928b6af57771df02a9b25faac2ea'
+            'edd61967680e03fb94388608311b81ad04d111c7c038d469d4f1fc237de43ca243277bc62b9536e5a1d8666e915b33b7f9238192c562dc35745ccd31ff79b305'
+            '5ee83a0e1703c9cbb9f956b249f2eb6fae61f1dbff67d5a42b3776a9247722aa3452181e410700d8456cd78cf5c9f66ad0d4ebbdb7039ef2bffd29d247574a7e')
 
 package_hybris-base(){
     depends=(libhybris)
     pkgdesc+=' - Base package'
     install -Dm644 75-hybris-seat.rules ${pkgdir}/etc/udev/rules.d/75-hybris-seat.rules
+    install -Dm755 hybris-override.sh ${pkgdir}/etc/profile.d/hybris-override.sh
 }
 
 package_hybris-base-phosh(){
@@ -30,7 +35,8 @@ package_hybris-base-phosh(){
     install="$pkgname.install"
     pkgdesc+=' - Phosh meta package'
     install -Dm644 phoshsvc-hybris.conf ${pkgdir}/usr/lib/systemd/system/phosh.service.d/20-hybris.conf
-    install -Dm644 000-ofono-hybris.gschema.override ${pkgdir}/usr/share/glib-2.0/schemas/000-ofono-hybris.gschema.override
+    install -Dm644 000-hybris.gschema.override ${pkgdir}/usr/share/glib-2.0/schemas/000-hybris.gschema.override
+    install -Dm644 sm.puri.Calls.desktop ${pkgdir}/etc/xdg-hybris/autostart/sm.puri.Calls.desktop
 }
 
 package_hybris-base-pulseaudio() {
