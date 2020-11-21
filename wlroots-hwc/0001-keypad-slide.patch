@@ -1,0 +1,37 @@
+From 65799d514b06c820751c70d60d30ee449335055e Mon Sep 17 00:00:00 2001
+From: "Eugenio Paolantonio (g7)" <me@medesimo.eu>
+Date: Sat, 31 Oct 2020 00:22:10 +0100
+Subject: [PATCH] backend: libinput: handle LIBINPUT_SWITCH_KEYPAD_SLIDE
+
+Signed-off-by: Eugenio Paolantonio (g7) <me@medesimo.eu>
+---
+ backend/libinput/switch.c      | 3 +++
+ include/wlr/types/wlr_switch.h | 1 +
+ 2 files changed, 4 insertions(+)
+
+diff --git a/backend/libinput/switch.c b/backend/libinput/switch.c
+index a9c33d3a..2cd9c023 100644
+--- a/backend/libinput/switch.c
++++ b/backend/libinput/switch.c
+@@ -40,6 +40,9 @@ void handle_switch_toggle(struct libinput_event *event,
+ 	case LIBINPUT_SWITCH_TABLET_MODE:
+ 		wlr_event.switch_type = WLR_SWITCH_TYPE_TABLET_MODE;
+ 		break;
++	case LIBINPUT_SWITCH_KEYPAD_SLIDE:
++		wlr_event.switch_type = WLR_SWITCH_TYPE_KEYPAD_SLIDE;
++		break;
+ 	}
+ 	switch (libinput_event_switch_get_switch_state(sevent)) {
+ 	case LIBINPUT_SWITCH_STATE_OFF:
+diff --git a/include/wlr/types/wlr_switch.h b/include/wlr/types/wlr_switch.h
+index 57f90384..4674d623 100644
+--- a/include/wlr/types/wlr_switch.h
++++ b/include/wlr/types/wlr_switch.h
+@@ -29,6 +29,7 @@ struct wlr_switch {
+ enum wlr_switch_type {
+ 	WLR_SWITCH_TYPE_LID = 1,
+ 	WLR_SWITCH_TYPE_TABLET_MODE,
++	WLR_SWITCH_TYPE_KEYPAD_SLIDE,
+ };
+ 
+ enum wlr_switch_state {
