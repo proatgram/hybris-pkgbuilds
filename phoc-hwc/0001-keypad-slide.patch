@@ -1,0 +1,23 @@
+From 8075aaa2437e258f258d865b9413b3633e4787f4 Mon Sep 17 00:00:00 2001
+From: "Eugenio Paolantonio (g7)" <me@medesimo.eu>
+Date: Sat, 31 Oct 2020 01:02:17 +0100
+Subject: [PATCH] settings: handle WLR_SWITCH_TYPE_KEYPAD_SLIDE
+
+Signed-off-by: Eugenio Paolantonio (g7) <me@medesimo.eu>
+---
+ src/settings.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/settings.c b/src/settings.c
+index fdc9ccd..cc6c48d 100644
+--- a/src/settings.c
++++ b/src/settings.c
+@@ -74,6 +74,8 @@ static void add_switch_config(struct wl_list *switches, const char *switch_name,
+ 		sc->switch_type = WLR_SWITCH_TYPE_TABLET_MODE;
+ 	} else if (strcmp(switch_name, "lid") == 0) {
+ 		sc->switch_type = WLR_SWITCH_TYPE_LID;
++	} else if (strcmp(switch_name, "keypad_slide") == 0) {
++		sc->switch_type = WLR_SWITCH_TYPE_KEYPAD_SLIDE;
+ 	} else {
+ 		sc->switch_type = -1;
+ 		sc->name = strdup(switch_name);

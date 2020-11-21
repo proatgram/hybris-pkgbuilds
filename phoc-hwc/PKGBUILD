@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phoc-hwc
 pkgver=0.5.1
-pkgrel=1
+pkgrel=2
 pkgdesc="A compositor for phones based on wlroots - with hwcomposer backend"
 arch=('armv7h' 'aarch64')
 url="https://source.puri.sm/Librem5/phoc"
@@ -13,11 +13,15 @@ makedepends=('meson' 'ninja')
 
 _commit="0855780be54ded79fdfcb7f280439b478d4d2e7f"
 source=(https://github.com/hybris-mobian/phoc/archive/${_commit}.tar.gz
-	206.patch)
+	'206.patch'
+	'0001-keypad-slide.patch'
+	'0002-keypad-slide.patch')
 
 prepare() {
 	cd phoc-${_commit}
 	patch -p1 -N < ../206.patch
+	patch -p1 -N < ../0001-keypad-slide.patch
+	patch -p1 -N < ../0002-keypad-slide.patch
 }
 
 build() {
@@ -33,4 +37,6 @@ package() {
 }
 
 md5sums=('4301471c9397520981b56637dc2d5b3d'
-         'f4f4f563293ddd0a6c992efb2db457d9')
+         'f4f4f563293ddd0a6c992efb2db457d9'
+         '5f9c520a4e33532a7efa02e8cf590ad5'
+         '08574327f0952bdf95c0ddd058385c31')
