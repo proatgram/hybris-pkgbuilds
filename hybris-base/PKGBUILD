@@ -1,7 +1,7 @@
 pkgbase=hybris-base
 pkgname=($pkgbase $pkgbase-phosh $pkgbase-pulseaudio)
 pkgver=0.1
-pkgrel=4
+pkgrel=5
 pkgdesc="Android hybris adapation"
 url="https://danctnix.org"
 arch=(any)
@@ -31,7 +31,7 @@ package_hybris-base(){
 }
 
 package_hybris-base-phosh(){
-    depends=($pkgbase cogl-hwc phoc-hwc phosh-hwc gnome-settings-daemon-hybris)
+    depends=($pkgbase cogl phoc-hwc phosh-hwc gnome-settings-daemon)
     install="$pkgname.install"
     pkgdesc+=' - Phosh meta package'
     install -Dm644 phoshsvc-hybris.conf ${pkgdir}/usr/lib/systemd/system/phosh.service.d/20-hybris.conf
