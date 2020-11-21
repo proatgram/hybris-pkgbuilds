@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phoc-hwc
-pkgver=0.5.0
+pkgver=0.5.1
 pkgrel=1
 pkgdesc="A compositor for phones based on wlroots - with hwcomposer backend"
 arch=('armv7h' 'aarch64')
@@ -11,7 +11,7 @@ depends=('gobject-introspection' 'gnome-desktop' 'libinput' 'mutter'
          'xcb-util-errors' 'xcb-util-wm' 'wlroots-hwc')
 makedepends=('meson' 'ninja')
 
-_commit="8684ffbd616e2c59dc8ff8e014259808e95b222c"
+_commit="0855780be54ded79fdfcb7f280439b478d4d2e7f"
 source=(https://github.com/hybris-mobian/phoc/archive/${_commit}.tar.gz
 	206.patch)
 
@@ -32,5 +32,5 @@ package() {
 	install -Dm755 phoc-${_commit}/helpers/scale-to-fit "$pkgdir"/usr/bin/scale-to-fit
 }
 
-md5sums=('8b3694472913e558d8b3fb136868b74a'
+md5sums=('4301471c9397520981b56637dc2d5b3d'
          'f4f4f563293ddd0a6c992efb2db457d9')
