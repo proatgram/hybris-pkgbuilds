@@ -1,0 +1,163 @@
+From 181ed8a89640ca1451313af89fab03d830220a33 Mon Sep 17 00:00:00 2001
+From: "Eugenio Paolantonio (g7)" <me@medesimo.eu>
+Date: Fri, 30 Oct 2020 01:40:19 +0100
+Subject: [PATCH] (to be broken up) add SW_KEYPAD_SLIDE support
+
+Signed-off-by: Eugenio Paolantonio (g7) <me@medesimo.eu>
+---
+ src/evdev-fallback.c          | 21 +++++++++++++++------
+ src/evdev.c                   |  9 +++++++++
+ src/evdev.h                   |  1 +
+ src/libinput.h                |  7 +++++++
+ tools/libinput-debug-events.c |  3 +++
+ 5 files changed, 35 insertions(+), 6 deletions(-)
+
+diff --git a/src/evdev-fallback.c b/src/evdev-fallback.c
+index 1e10fc31..56268479 100644
+--- a/src/evdev-fallback.c
++++ b/src/evdev-fallback.c
+@@ -55,7 +55,9 @@ fallback_lid_notify_toggle(struct fallback_dispatch *dispatch,
+ 	if (dispatch->lid.is_closed ^ dispatch->lid.is_closed_client_state) {
+ 		switch_notify_toggle(&device->base,
+ 				     time,
+-				     LIBINPUT_SWITCH_LID,
++				     (device->tags & EVDEV_TAG_KEYPAD_SLIDE_SWITCH) ?
++				         LIBINPUT_SWITCH_KEYPAD_SLIDE :
++				         LIBINPUT_SWITCH_LID,
+ 				     dispatch->lid.is_closed);
+ 		dispatch->lid.is_closed_client_state = dispatch->lid.is_closed;
+ 	}
+@@ -684,6 +686,10 @@ fallback_lid_keyboard_event(uint64_t time,
+ {
+ 	struct fallback_dispatch *dispatch = fallback_dispatch(data);
+ 
++	uint16_t event_code = (dispatch->device->tags & EVDEV_TAG_KEYPAD_SLIDE_SWITCH) ?
++								SW_KEYPAD_SLIDE :
++								SW_LID;
++
+ 	if (!dispatch->lid.is_closed)
+ 		return;
+ 
+@@ -695,7 +701,7 @@ fallback_lid_keyboard_event(uint64_t time,
+ 		int rc;
+ 		struct input_event ev[2];
+ 
+-		ev[0] = input_event_init(0, EV_SW, SW_LID, 0);
++		ev[0] = input_event_init(0, EV_SW, event_code, 0);
+ 		ev[1] = input_event_init(0, EV_SYN, SYN_REPORT, 0);
+ 
+ 		rc = write(fd, ev, sizeof(ev));
+@@ -766,6 +772,7 @@ fallback_process_switch(struct fallback_dispatch *dispatch,
+ 
+ 	switch (e->code) {
+ 	case SW_LID:
++	case SW_KEYPAD_SLIDE:
+ 		is_closed = !!e->value;
+ 
+ 		fallback_lid_toggle_keyboard_listeners(dispatch, is_closed);
+@@ -1181,12 +1188,14 @@ fallback_interface_sync_initial_state(struct evdev_device *device,
+ 	struct fallback_dispatch *dispatch = fallback_dispatch(evdev_dispatch);
+ 	uint64_t time = libinput_now(evdev_libinput_context(device));
+ 
+-	if (device->tags & EVDEV_TAG_LID_SWITCH) {
++	if (device->tags & EVDEV_TAG_LID_SWITCH || device->tags & EVDEV_TAG_KEYPAD_SLIDE_SWITCH) {
+ 		struct libevdev *evdev = device->evdev;
+ 
+ 		dispatch->lid.is_closed = libevdev_get_event_value(evdev,
+ 								   EV_SW,
+-								   SW_LID);
++								   (device->tags & EVDEV_TAG_KEYPAD_SLIDE_SWITCH) ?
++								       SW_KEYPAD_SLIDE :
++								       SW_LID);
+ 		dispatch->lid.is_closed_client_state = false;
+ 
+ 		/* For the initial state sync, we depend on whether the lid switch
+@@ -1292,7 +1301,7 @@ fallback_lid_pair_keyboard(struct evdev_device *lid_switch,
+ 	size_t count = 0;
+ 
+ 	if ((keyboard->tags & EVDEV_TAG_KEYBOARD) == 0 ||
+-	    (lid_switch->tags & EVDEV_TAG_LID_SWITCH) == 0)
++	    (lid_switch->tags & EVDEV_TAG_LID_SWITCH || lid_switch->tags & EVDEV_TAG_KEYPAD_SLIDE_SWITCH) == 0)
+ 		return;
+ 
+ 	if ((keyboard->tags & EVDEV_TAG_INTERNAL_KEYBOARD) == 0)
+@@ -1649,7 +1658,7 @@ fallback_dispatch_init_switch(struct fallback_dispatch *dispatch,
+ 
+ 	list_init(&dispatch->lid.paired_keyboard_list);
+ 
+-	if (device->tags & EVDEV_TAG_LID_SWITCH) {
++	if (device->tags & EVDEV_TAG_LID_SWITCH || device->tags & EVDEV_TAG_KEYPAD_SLIDE_SWITCH) {
+ 		dispatch->lid.reliability = evdev_read_switch_reliability_prop(device);
+ 		dispatch->lid.is_closed = false;
+ 	}
+diff --git a/src/evdev.c b/src/evdev.c
+index 453c89a0..e387fd33 100644
+--- a/src/evdev.c
++++ b/src/evdev.c
+@@ -1933,6 +1933,12 @@ evdev_configure_device(struct evdev_device *device)
+ 		    }
+ 		}
+ 
++		if (libevdev_has_event_code(evdev, EV_SW, SW_KEYPAD_SLIDE)) {
++			device->seat_caps |= EVDEV_DEVICE_SWITCH;
++			device->tags |= EVDEV_TAG_KEYPAD_SLIDE_SWITCH;
++			evdev_log_info(device, "device is a keypad slide switch device\n");
++		}
++
+ 		if (device->seat_caps & EVDEV_DEVICE_SWITCH)
+ 		    evdev_log_info(device, "device is a switch device\n");
+ 	}
+@@ -2548,6 +2554,9 @@ evdev_device_has_switch(struct evdev_device *device,
+ 	case LIBINPUT_SWITCH_TABLET_MODE:
+ 		code = SW_TABLET_MODE;
+ 		break;
++	case LIBINPUT_SWITCH_KEYPAD_SLIDE:
++		code = SW_KEYPAD_SLIDE;
++		break;
+ 	default:
+ 		return -1;
+ 	}
+diff --git a/src/evdev.h b/src/evdev.h
+index b0b1b8c6..73831b82 100644
+--- a/src/evdev.h
++++ b/src/evdev.h
+@@ -74,6 +74,7 @@ enum evdev_device_tags {
+ 	EVDEV_TAG_EXTERNAL_KEYBOARD	= bit(7),
+ 	EVDEV_TAG_TABLET_MODE_SWITCH	= bit(8),
+ 	EVDEV_TAG_TABLET_TOUCHPAD	= bit(9),
++	EVDEV_TAG_KEYPAD_SLIDE_SWITCH	= bit(10),
+ };
+ 
+ enum evdev_middlebutton_state {
+diff --git a/src/libinput.h b/src/libinput.h
+index 9570648c..481b79b0 100644
+--- a/src/libinput.h
++++ b/src/libinput.h
+@@ -696,6 +696,13 @@ enum libinput_switch {
+ 	 * in tablet mode.
+ 	 */
+ 	LIBINPUT_SWITCH_TABLET_MODE,
++
++	/**
++	 * This switch indicates whether the embedded keypad is currently
++	 * opened (if state is @ref LIBINPUT_SWITCH_STATE_ON) or
++	 * closed (if state is @ref LIBINPUT_SWITCH_STATE_OFF).
++	*/
++	LIBINPUT_SWITCH_KEYPAD_SLIDE,
+ };
+ 
+ /**
+diff --git a/tools/libinput-debug-events.c b/tools/libinput-debug-events.c
+index efdc93f5..bf7a87eb 100644
+--- a/tools/libinput-debug-events.c
++++ b/tools/libinput-debug-events.c
+@@ -809,6 +809,9 @@ print_switch_event(struct libinput_event *ev)
+ 	case LIBINPUT_SWITCH_TABLET_MODE:
+ 		which = "tablet-mode";
+ 		break;
++	case LIBINPUT_SWITCH_KEYPAD_SLIDE:
++		which = "keypad-slide";
++		break;
+ 	default:
+ 		abort();
+ 	}

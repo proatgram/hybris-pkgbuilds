@@ -1,0 +1,47 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: Andreas Radke <andyrtr@archlinux.org>
+# Contributor: Jan de Groot
+
+# Forked to include SW_KEYPAD_SLIDE
+pkgname=libinput
+pkgver=1.16.3
+pkgrel=90
+pkgdesc="Input device management and event handling library"
+url="https://www.freedesktop.org/wiki/Software/libinput/"
+arch=(x86_64 armv7h aarch64)
+license=(custom:X11)
+depends=('mtdev' 'systemd' 'libevdev' 'libwacom')
+# upstream doesn't recommend building docs
+makedepends=('gtk3' 'meson') # 'doxygen' 'graphviz' 'python-sphinx' 'python-recommonmark'
+optdepends=('gtk3: libinput debug-gui'
+            'python-pyudev: libinput measure'
+            'python-libevdev: libinput measure')
+source=(https://freedesktop.org/software/$pkgname/$pkgname-$pkgver.tar.xz{,.sig}
+        0001-keypad-slide.patch
+        0002-keypad-slide.patch)
+sha512sums=('cdf87988b24dc0a44b7b6ed3e15e70c7702bf65f1cfe257924967677c7a1f1485011a9e30254ba8962c83885de78f824e7955cedb07322676332d42532ec4a39'
+            'SKIP'
+            '4d6db1cdf5d5b969e2f04c3bd5e01fd2cdb01d403ecb90a387c2b47b58c6cc34b7eb2e5ff9d809e10e1ae546cea5f15e1e35b00041847f8a556d759d29f7bd24'
+            '4a9337395b6b347b4ae6af1b6e5f622bb854c51bbec03e0b4659e19aa61c3555da4163b8bdf40b4ba8246f47fd5bc3bc9adca96e5a4665653352240df2391bf3')
+validpgpkeys=('3C2C43D9447D5938EF4551EBE23B7E70B467F0BF') # Peter Hutterer (Who-T) <office@who-t.net>
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch -p1 -N < ../0001-keypad-slide.patch
+  patch -p1 -N < ../0002-keypad-slide.patch
+}
+
+build() {
+  arch-meson $pkgname-$pkgver build \
+    -Dudev-dir=/usr/lib/udev \
+    -Dtests=false \
+    -Ddocumentation=false
+  ninja -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" ninja -C build install
+
+  install -Dvm644 $pkgname-$pkgver/COPYING \
+    "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
