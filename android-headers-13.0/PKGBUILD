@@ -1,14 +1,12 @@
-# Maintainer: Danct12 <danct12@disroot.org>
-
-pkgname=android-headers-9.0
+pkgname=android-headers-13.0
 pkgver=9.0
 pkgrel=1
 pkgdesc="Android headers used for building libhybris"
 arch=('any')
-url="https://github.com/Halium/android-headers"
+url="https://github.com/proatgram/android-headers"
 license=('Apache-2.0')
-_commit="00543b4ff3f56a9f96be336df276365aef46f8a2"
-source=("https://github.com/Halium/android-headers/archive/${_commit}.tar.gz")
+_commit="4a7cbe2d7b7214656e76892a2771d196ede0ab60"
+source=("https://github.com/proatgram/android-headers/archive/${_commit}.tar.gz")
 md5sums=('9bf3b4751532d2052e15b791b20ce033')
 
 package() {
